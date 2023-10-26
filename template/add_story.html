@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+
+
+
+<div class="max-w-full mx-auto p-8">
+
+
+  <ul class="flex space-x-6 font-serif ">
+
+    <li class="flex flex-col items-center space-y-1 relative">
+      <div class="bg-gradient-to-tr from-yellow-300 to-fuchsia-800 p-1 rounded-full">
+        <a class=" bg-white block rounded-full p-1 hover:-rotate-6 transform transition" href="#"
+          onclick="my_modal_1.showModal()">
+
+          {% if user.profile.profile_image %}
+          <img class="h-24 w-24 rounded-full" src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}"
+            aria-hidden="true" />
+          {%endif%}
+
+        </a>
+
+        <!-- Open the modal using ID.showModal() method -->
+        <dialog id="my_modal_1" class="modal">
+          <div class="modal-box">
+            <h3 class="font-bold text-lg"> {% for story in stories %}
+              <div class="border p-4 mb-4 rounded-lg shadow-md">
+                {% if story.image %}
+                <img src="{{ story.image.url }}" alt="Story Image" class="w-full h-32 object-cover mb-2">
+                {% else %}
+                <p>No image available</p>
+                {% endif %}
+                <p class="text-gray-600 text-sm">{{ story.created }}</p>
+                {% if story.is_expired %}
+                <p class="text-red-500 text-sm">Expired</p>
+                {% else %}
+                <p class="text-green-500 text-sm">Active</p>
+                {% endif %}
+              </div>
+              {% empty %}
+              <p>No active stories available.</p>
+              {% endfor %}
+            </h3>
+            <p class="py-4">
+            <div class="story">
+              <img src="{{ story.image.url }}">
+            </div>
+            </p>
+            <div class="modal-action">
+              <form method="dialog">
+                <!-- if there is a button in form, it will close the modal -->
+                <button class="btn">Close</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+        <!-- First Modal -->
+        <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+          <div x-show="isModalOpen" x-transition:enter="animate__animated animate__fadeIn"
+            x-transition:leave="animate__animated animate__fadeOut"
+            class="w-full px-6 py-4 overflow-hidden bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl"
+            role="dialog" @click.away="isModalOpen = false" @keydown.escape="isModalOpen = false">
+            <!-- Modal Header -->
+            <header class="flex justify-end">
+              <!-- Close Button -->
+              <button
+                class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover:text-gray-700"
+                aria-label="close" @click="isModalOpen = false">
+                <!-- Close Icon SVG -->
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" role="img" aria-hidden="true">
+                  <path
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd" fill-rule="evenodd"></path>
+                </svg>
+              </button>
+            </header>
+            <!-- Modal Body -->
+            <div class="mt-4 mb-6">
+              <!-- Modal Title -->
+              <!-- Modal Content -->
+              <p class="text-sm text-gray-700 dark:text-gray-400">
+                <!-- Replace this with your dynamic content -->
+              <form action="{% url 'add_story' %}" method="post" enctype="multipart/form-data"
+                class="max-w-xs mx-auto p-6 bg-white shadow-lg rounded-lg">
+                {% csrf_token %}
+
+                <label for="image" class="block text-gray-700 font-semibold mb-2">Create story</label>
+
+                <label for="image"
+                  class="w-full flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md cursor-pointer transition duration-300 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  Choose an Image
+                </label>
+
+                <input type="file" name="image" required id="image" class="hidden">
+
+                <div id="image-preview" class="mb-4"></div>
+
+                <button type="submit"
+                  class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition duration-300">Add
+                  Story</button>
+              </form>
+
+              <script>
+                document.getElementById('image').addEventListener('change', function (event) {
+                  const previewContainer = document.getElementById('image-preview');
+                  previewContainer.innerHTML = ''; // Clear previous preview
+
+                  const file = event.target.files[0];
+                  const reader = new FileReader();
+
+                  reader.onloadend = function () {
+                    const imgElement = document.createElement('img');
+                    imgElement.setAttribute('src', reader.result);
+                    imgElement.setAttribute('class', 'w-full h-auto rounded-md');
+                    previewContainer.appendChild(imgElement);
+                  };
+
+                  if (file) {
+                    reader.readAsDataURL(file);
+                  }
+                });
+              </script>
+
+              </p>
+            </div>
+            <!-- Modal Footer -->
+
+          </div>
+        </div>
+      </div>
+
+
+
+      <button class="absolute bottom-8 right-1 bg-purple-800 rounded-full h-8 w-8 text-2xl
+            text-white font-semibold border-2
+             border-white flex justify-center items-center font-mono hover:bg-blue-700"
+        @click="isModalOpen = true">+</button>
+      <a href="#">
+        you
+      </a>
+    </li>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+</div>
+
+{% endblock %}

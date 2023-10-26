@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    
+    {% if users %}
+    <div class="card shadow-lg">
+        <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+        <ul>
+            {% for user in users %}
+                <li class="flex items-center mb-4">
+                    {% if user.profile.profile_image %}
+                        <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" 
+                             class="w-12 h-12 rounded-full mr-4">
+                    {% else %}
+                        <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold mr-4">
+                            {{ user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <a href="{% url 'profile' user.id %}" class="text-blue-500 font-bold hover:underline">{{ user.username }}</a>
+                        <p class="text-gray-600">{{ user.first_name }} {{ user.last_name }}</p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-600">No users found.</p>
+    {% endif %}
+</div>
+</div>
+</div>
+{% endblock %}

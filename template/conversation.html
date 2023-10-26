@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+  {% for message in messages %}
+    <p>{{ message.content }}</p> 
+  {% endfor %}
+  
+  <form method="POST" action="{% url 'send_message' %}">
+    {% csrf_token %}
+    <input type="text" name="content">
+    <input type="hidden" name="receiver" value="{{ receiver.user.username }}">
+    <button type="submit">Send</button>
+  </form>
+
+{% endblock %}

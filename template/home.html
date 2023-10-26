@@ -1,0 +1,641 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+<script>
+  $(document).ready(function () {
+    $(".owl-carousel").owlCarousel({
+      items: 5,  // Number of items visible at a time
+      loop: false,  // Disable the infinite loop
+      margin: 10,  // Adjust the spacing between items
+      nav: true,  // Show navigation arrows
+      dots: false,  // Hide pagination dots
+    });
+  });
+</script>
+<!-- Tailwind CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+
+<div class="card shadow-gray-100">
+  <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-shadow-500 dark:bg-gray-800">
+    <div class="max-w-full mx-auto p-8">
+
+
+      <ul class="flex space-x-6 font-serif ">
+
+        <li class="flex flex-col items-center space-y-1 relative">
+          <div class="bg-gradient-to-tr from-yellow-300 to-fuchsia-800 p-1 rounded-full">
+            <a class=" bg-white block rounded-full p-1 hover:-rotate-6 transform transition" href="#"
+              onclick="my_modal_1.showModal()">
+
+              {% if user.profile.profile_image %}
+              <img class="h-24 w-24 rounded-full" src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}"
+                aria-hidden="true" />
+              {%endif%}
+
+            </a>
+
+            <!-- Open the modal using ID.showModal() method -->
+            <dialog id="my_modal_1" class="modal">
+              <div class="modal-box">
+                <h3 class="font-bold text-lg"> {% for story in stories %}
+                  <div class="border p-4 mb-4 rounded-lg shadow-md">
+                    {% if story.image %}
+                    <img src="{{ story.image.url }}" alt="Story Image" class="w-full h-32 object-cover mb-2">
+                    {% else %}
+                    <p>No image available</p>
+                    {% endif %}
+                    <p class="text-gray-600 text-sm">{{ story.created }}</p>
+                    {% if story.is_expired %}
+                    <p class="text-red-500 text-sm">Expired</p>
+                    {% else %}
+                    <p class="text-green-500 text-sm">Active</p>
+                    {% endif %}
+                  </div>
+                  {% empty %}
+                  <p>No active stories available.</p>
+                  {% endfor %}
+                </h3>
+                <p class="py-4">
+                <div class="story">
+                  <img src="{{ story.image.url }}">
+                </div>
+                </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn">Close</button>
+                  </form>
+                </div>
+              </div>
+            </dialog>
+            <!-- First Modal -->
+            <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+              <div x-show="isModalOpen" x-transition:enter="animate__animated animate__fadeIn"
+                x-transition:leave="animate__animated animate__fadeOut"
+                class="w-full px-6 py-4 overflow-hidden bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl"
+                role="dialog" @click.away="isModalOpen = false" @keydown.escape="isModalOpen = false">
+                <!-- Modal Header -->
+                <header class="flex justify-end">
+                  <!-- Close Button -->
+                  <button
+                    class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover:text-gray-700"
+                    aria-label="close" @click="isModalOpen = false">
+                    <!-- Close Icon SVG -->
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" role="img" aria-hidden="true">
+                      <path
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" fill-rule="evenodd"></path>
+                    </svg>
+                  </button>
+                </header>
+                <!-- Modal Body -->
+                <div class="mt-4 mb-6">
+                  <!-- Modal Title -->
+                  <!-- Modal Content -->
+                  <p class="text-sm text-gray-700 dark:text-gray-400">
+                    <!-- Replace this with your dynamic content -->
+                    <!-- <form action="{% url 'add_story' %}" method="post" enctype="multipart/form-data"
+                    class="max-w-xs mx-auto p-6 bg-white shadow-lg rounded-lg">
+                    {% csrf_token %}
+
+                    <label for="image" class="block text-gray-700 font-semibold mb-2">Create
+                      story</label>
+
+                    <label for="image"
+                      class="w-full flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md cursor-pointer transition duration-300 mb-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                      Choose an Image
+                    </label>
+
+                    <input type="file" name="image" required id="image" class="hidden">
+
+                    <div id="image-preview" class="mb-4"></div>
+
+                    <button type="submit"
+                      class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition duration-300">Add
+                      Story</button>
+                  </form> -->
+
+                    <script>
+                      document.getElementById('image').addEventListener('change', function (event) {
+                        const previewContainer = document.getElementById('image-preview');
+                        previewContainer.innerHTML = ''; // Clear previous preview
+
+                        const file = event.target.files[0];
+                        const reader = new FileReader();
+
+                        reader.onloadend = function () {
+                          const imgElement = document.createElement('img');
+                          imgElement.setAttribute('src', reader.result);
+                          imgElement.setAttribute('class', 'w-full h-auto rounded-md');
+                          previewContainer.appendChild(imgElement);
+                        };
+
+                        if (file) {
+                          reader.readAsDataURL(file);
+                        }
+                      });
+                    </script>
+
+                  </p>
+                </div>
+                <!-- Modal Footer -->
+
+              </div>
+            </div>
+          </div>
+
+
+
+          <button class="absolute bottom-8 right-1 bg-purple-800 rounded-full h-8 w-8 text-2xl
+            text-white font-semibold border-2
+             border-white flex justify-center items-center font-mono hover:bg-blue-700"
+            @click="isModalOpen = true">+</button>
+          <a href="#">
+            you
+          </a>
+        </li>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+
+
+        {% for story in following_stories %}
+        <div class="item">
+          <div class="bg-gradient-to-tr from-yellow-400 to-purple-600 p-1 rounded-full">
+            <a href="#" class="user-story-link  block bg-white p-1 rounded-full transform transition hover:-rotate-6"
+              data-user-id="{{ story.user.id }}">
+              <img src="{{ story.user.profile.profile_image.url }}" alt="{{ story.user.username }}'s Profile Photo"
+                class="cursor-pointer rounded-full w-24 h-24">
+            </a>
+          </div>
+          <a href="#">{{ story.user.username }}</a>
+        </div>
+        {% endfor %}
+
+    </div>
+  </div>
+
+  <div id="storyModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="modal-container">
+      <div class="modal-content overflow-hidden bg-gray-800 shadow-lg w-96">
+        <div class="modal-header bg-gray-800 text-white px-4 py-3">
+          <div class="flex items-center">
+            <div id="profile-image-container" class="mr-4">
+              <img id="profile-image" src="" alt="User's Profile Photo" class="w-12 h-12 rounded-full">
+            </div>
+            <h3 class="text-2xl font-semibold" id="modal-title">User's Name</h3>
+            <button id="closeModal" class="ml-auto text-white hover:text-gray-200 text-2xl" aria-label="Close"
+              data-micromodal-close>&times;</button>
+          </div>
+        </div>
+
+        <div class="modal-body p-4">
+          <div class="max-w-2xl mx-auto">
+            <div id="storyCarousel" class="relative" data-carousel="static">
+              <div class="overflow-hidden relative h-56 rounded-lg sm:h-64 xl:h-80 2xl:h-96" id="carouselWrapper">
+                <!-- Items will be added here dynamically with JavaScript -->
+              </div>
+              <div class="flex absolute bottom-5 left-1/2 z-30 space-x-3 -translate-x-1/2" id="carouselIndicators">
+                <!-- Indicator buttons will be added here dynamically with JavaScript -->
+              </div>
+              <button type="button"
+                class="flex absolute top-0 left-0 z-30 justify-center items-center px-4 h-full cursor-pointer group focus:outline-none"
+                data-carousel-prev>
+                <span
+                  class="inline-flex justify-center items-center w-8 h-8 rounded-full sm:w-10 sm:h-10 bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+                  <svg class="w-5 h-5 text-white sm:w-6 sm:h-6 dark:text-gray-800" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                  <span class="hidden">Previous</span>
+                </span>
+              </button>
+              <button type="button"
+                class="flex absolute top-0 right-0 z-30 justify-center items-center px-4 h-full cursor-pointer group focus:outline-none"
+                data-carousel-next>
+                <span
+                  class="inline-flex justify-center items-center w-8 h-8 rounded-full sm:w-10 sm:h-10 bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+                  <svg class="w-5 h-5 text-white sm:w-6 sm:h-6 dark:text-gray-800" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                  <span class="hidden">Next</span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const storyModal = document.getElementById("storyModal");
+      const profileImage = document.getElementById("profile-image");
+      const profileImageContainer = document.getElementById("profile-image-container");
+      const modalTitle = document.getElementById("modal-title");
+      const storyCarousel = document.getElementById("carouselWrapper"); // Changed to carouselWrapper
+      const closeModalButton = document.getElementById("closeModal");
+
+      document.querySelectorAll(".user-story-link").forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const userId = this.getAttribute("data-user-id");
+
+          // Fetch user data (profile image and name) using AJAX
+          fetch(`/api/user/${userId}/data/`)
+            .then(response => response.json())
+            .then(data => {
+              profileImage.src = data.profile_image;
+              modalTitle.innerText = data.username;
+            })
+            .catch(error => console.error(error));
+
+          // Fetch and populate user's stories into storyCarousel
+          fetch(`/api/user/${userId}/stories/`)
+            .then(response => response.json())
+            .then(data => {
+              storyCarousel.innerHTML = ''; // Clear existing carousel content
+              data.stories.forEach(story => {
+                const carouselItem = document.createElement("div");
+                carouselItem.className = "carousel-item";
+                const storyImage = document.createElement("img");
+                storyImage.src = story.image;
+                storyImage.alt = "User's Story";
+                carouselItem.appendChild(storyImage);
+                storyCarousel.appendChild(carouselItem);
+              });
+
+              // Initialize the Flowbite carousel (if you're using it)
+              // Replace with your carousel library's initialization code
+              const flowbite = new FlowBite('.carousel', {
+                // Add your carousel options here
+              });
+            })
+            .catch(error => console.error(error));
+
+          storyModal.classList.remove("hidden");
+        });
+      });
+
+      closeModalButton.addEventListener("click", function () {
+        storyModal.classList.add("hidden");
+      });
+    });
+
+  </script>
+
+
+
+
+
+
+  <!-- Owl Carousel JS -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('.owl-carousel').owlCarousel({
+        loop: true,
+        margin: 10,
+        nav: true,
+        responsive: {
+          0: {
+            items: 1
+          },
+          600: {
+            items: 3
+          },
+          1000: {
+            items: 5
+          }
+        }
+      });
+    });
+  </script>
+
+
+
+
+  <!-- story end -->
+
+  <div class="grid gap-6 mb-8 md:grid-cols-2 justify-center">
+    <div class="flex items-center min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+
+      <form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        <div class="mb-4">
+          <label for="text" class="block text-sm font-medium text-gray-700 dark:text-gray-300">What's on Your
+            mind!!</label>
+          <textarea name="text" id="text"
+            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-gray-300 rounded-md"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <div class="mt-1 relative">
+            <input type="file" name="image" id="image" class="hidden" onchange="previewImage(this);">
+            <label for="image"
+              class="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-indigo-300 dark:border-gray-600 rounded-md py-2 px-4 inline-flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="w-4 h-4 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+              </svg>
+              <span>Choose an image</span>
+            </label>
+          </div>
+          <img id="image-preview" class="mt-2 w-md hidden" alt="Image Preview">
+        </div>
+
+        <script>
+          function previewImage(input) {
+            const imagePreview = document.getElementById('image-preview');
+            if (input.files && input.files[0]) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+              };
+              reader.readAsDataURL(input.files[0]);
+            }
+          }
+        </script>
+
+
+        <button type="submit"
+          class="p-2 text-sm font-medium text-white bg-indigo-600 border rounded-md hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 ">Add
+          Post</button>
+    </div>
+  </div>
+  </form>
+
+  <script>
+    function previewImage(input) {
+      var preview = document.getElementById('image-preview');
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.classList.remove('hidden');
+        };
+
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.src = '';
+        preview.classList.add('hidden');
+      }
+    }
+
+  </script>
+
+
+
+
+  {% for post in posts %}
+
+
+  <a href="{% url 'profile' pk=post.author.id %}">
+    <div class="card shadow-lg">
+      <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+        <div class="flex items-center">
+          {% if post.author.profile.profile_image %}
+          <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}"
+            class="w-8 h-8 rounded-full mr-2">
+          {% else %}
+          <img src="https://www.bytewebster.com/img/logo.png" alt="{{ post.author.username }}"
+            class="w-8 h-8 rounded-full mr-2">
+          {% endif %}
+
+
+
+
+          <p class="dark:text-gray-800">{{ post.author.username |capfirst }}</p>
+
+        </div>
+  </a>
+
+
+
+
+  <a href="{% url 'post_detail' post_id=post.id %}">
+    <div class="card-body">
+      <div class="flex items-center">
+        <p class="dark:text-gray-800 mr-4 text-s">{{ post.text }}</p>
+        <p class="dark:text-gray-500 text-xs">{{ post.created|timesince }} ago</p>
+      </div>
+      {% if post.image %}
+      <img src="{{ post.image.url }}" class="w-full h-auto mt-3">
+  </a>
+  {% endif %}
+
+
+
+  <!-- Like, Share and Comment Buttons -->
+
+
+  <div class="flex justify-between mt-4">
+
+    <!-- Like Button -->
+    <!-- Like Button -->
+    <a href="{% url 'post_like' post.id %}" class="like-button">Like {{ post.num_of_likes }}</a>
+
+
+
+    <script>
+      // JavaScript code
+      // Function to get CSRF token from cookies
+      function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === name + '=') {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Attach event listeners to like buttons
+        document.querySelectorAll('.like-button').forEach(button => {
+          button.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default link behavior
+
+            const url = this.getAttribute('href');
+            const likeButton = this; // Store a reference to the button element
+
+            // Disable the like button temporarily
+            likeButton.disabled = true;
+
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+              },
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.error) {
+                  console.error('Error:', data.error);
+                } else {
+                  // Update the like button text based on the response
+                  likeButton.textContent = data.liked ? 'Like ' + data.likes_count + ' ' : 'Like ' + data.likes_count + ' ';
+
+                  // Add a class to the liked button
+                  if (data.liked) {
+                    likeButton.classList.add('liked');
+                  } else {
+                    likeButton.classList.remove('liked');
+                  }
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              })
+              .finally(() => {
+                // Re-enable the like button after the request completes
+                likeButton.disabled = false;
+              });
+          });
+        });
+      });
+    </script>
+
+
+    <!-- <button  class="like-button">
+      <div class="like-wrapper">
+        <div class="ripple"></div>
+        <svg class="heart" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"></path>
+        </svg>
+        <div class="particles" style="--total-particles: 6">
+          <div class="particle" style="--i: 1; --color: #7642F0"></div>
+          <div class="particle" style="--i: 2; --color: #AFD27F"></div>
+          <div class="particle" style="--i: 3; --color: #DE8F4F"></div>
+          <div class="particle" style="--i: 4; --color: #D0516B"></div>
+          <div class="particle" style="--i: 5; --color: #5686F2"></div>
+          <div class="particle" style="--i: 6; --color: #D53EF3"></div>
+        </div>
+      </div>
+      
+      
+    </button>
+
+    
+        <-- Comment Button -->
+    <button class="comment-button" data-post-id="{{ post.id }}">{{ post.comments.count }} comments</button>
+
+    <button class="flex items-center bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded">
+      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+      </svg>
+
+    </button>
+
+
+  </div>
+  <div id="comment-section-{{ post.id }}" class="comment-section hidden">
+    <div class="mt-4">
+      <h3 class="text-lg font-bold mb-2">Comments</h3>
+      {% for comment in post.comments.all|slice:":3" %}
+      <div class="mb-2">
+        <div class="flex items-center">
+          <!-- Display comment user profile picture if available -->
+          {% if comment.user.profile.profile_image %}
+          <img src="{{ comment.user.profile.profile_image.url }}" alt="{{ comment.user.username }}"
+            class="w-8 h-8 rounded-full mr-2">
+          {% endif %}
+          <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+        </div>
+      </div>
+      {% empty %}
+      <p>No comments yet.</p>
+      {% endfor %}
+      {% if post.comments.count > 3 %}
+      <a href="{% url 'post_detail' post_id=post.id %}">View More</a>
+      {% endif %}
+    </div>
+
+
+    <!-- Comment Form for each post -->
+    <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="mb-4">
+      {% csrf_token %}
+      <textarea name="text" rows="4" cols="50" class="w-full mb-2 border-2"></textarea><br>
+      <input type="submit" value="Submit Comment"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+    </form>
+
+
+
+    <!-- Loop through comments and display them -->
+    {% for comment in post.comment_set.all %}
+    <div class="mb-2">
+      <div class="flex items-center">
+        <img src="{{ comment.user.profile.profile_picture.url }}" class="w-6 h-6 rounded-full mr-2">
+        <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+      </div>
+    </div>
+
+    {% endfor %}
+  </div>
+</div>
+</div>
+</div>
+
+
+
+{% endfor %}
+
+<script>
+  // Get all comment buttons
+  const commentButtons = document.querySelectorAll('.comment-button');
+
+  // Add click event listener to each comment button
+  commentButtons.forEach(function (commentButton) {
+    commentButton.addEventListener('click', function () {
+      // Get the post ID from the clicked button's data-post-id attribute
+      const postId = commentButton.getAttribute('data-post-id');
+
+      // Select the corresponding comment section based on the post ID
+      const commentSection = document.getElementById(`comment-section-${postId}`);
+
+      // Get the computed style of the comment section
+      const computedStyle = window.getComputedStyle(commentSection);
+
+      // Toggle the visibility of the comment section
+      if (computedStyle.display === 'none' || computedStyle.display === '') {
+        commentSection.style.display = 'block'; // Show the comment section
+      } else {
+        commentSection.style.display = 'none'; // Hide the comment section
+      }
+    });
+  });
+
+</script>
+
+
+
+
+
+
+
+{% endblock body %}

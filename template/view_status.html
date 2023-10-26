@@ -1,0 +1,11 @@
+<!-- view_status.html -->
+<h2>{{ user.username }}'s Status</h2>
+<p>Status: {{ user.profile.status }}</p>
+<p>Views: {{ user.profile.view_count }}</p>
+
+<h3>Viewers:</h3>
+<ul>
+  {% for viewer in user.profile.views.all %}
+    <li>{{ viewer.username }}</li>
+  {% endfor %}
+</ul>

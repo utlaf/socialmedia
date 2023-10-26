@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container mx-auto p-8 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-gray-300">
+  <h1 class="text-2xl font-bold mb-4">{{ post.text }}</h1>
+  <img src="{{ post.image.url }}" alt="Post Image" class="mb-4 rounded-lg">
+
+  <div class="comment-section">
+    <h2>Comments</h2>
+
+    {% for comment in comments %}
+      <div class="comment bg-white shadow-md rounded p-4 mb-4 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-gray-300">
+        <div class="flex items-center mb-2">
+          <strong class="text-blue-500 mr-2">{{ comment.user.username }}</strong>
+          <span>{{ comment.text }}</span>
+        </div>
+
+        <!-- Add a unique ID to the reply form to differentiate between different forms -->
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded cursor-pointer mb-2 reply-button">Reply</button>
+
+        <!-- Add the comment ID as a data attribute to the reply form -->
+        <form method="post" action="{% url 'add_reply' comment.id %}" class="mb-2 reply-form hidden" data-comment-id="{{ comment.id }}">
+          {% csrf_token %}
+          <textarea name="text" rows="2" cols="40" class="w-full py-2 px-3 border border-gray-300 rounded mb-2"></textarea><br>
+          <input type="submit" value="Reply" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded cursor-pointer">
+        </form>
+
+        {% for reply in comment.replies.all %}
+        <div class="reply bg-gray-100 rounded p-2 mb-2 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-gray-300 flex items-center">
+          <img src="{{ reply.user.profile.profile_image.url }}" alt="{{ reply.user.username }}" class="w-8 h-8 rounded-full mr-2">
+          <strong class="text-blue-500">{{ reply.user.username }}</strong>: {{ reply.text }}
+      </div>
+      
+        {% empty %}
+          <p>No replies yet.</p>
+        {% endfor %}
+      </div>
+    {% empty %}
+      <p>No comments yet.</p>
+    {% endfor %}
+
+    <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="mb-8 comment-form">
+      {% csrf_token %}
+      <textarea name="text" rows="4" class="w-full py-2 px-3 border border-gray-300 rounded mb-2 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-gray-300"></textarea><br>
+      <input type="submit" value="Submit Comment" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+    </form>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+      function submitForm(form) {
+        var formData = form.serialize();
+
+        $.ajax({
+          type: form.attr('method'),
+          url: form.attr('action'),
+          data: formData,
+          beforeSend: function(xhr, settings) {
+            // Include the CSRF token in the AJAX request headers
+            xhr.setRequestHeader("X-CSRFToken", form.find('input[name="csrfmiddlewaretoken"]').val());
+          },
+          success: function(response) {
+            // Handle successful form submission response here
+            if (response.success) {
+              // Handle successful form submission response here
+              if (response.comment) {
+                // Assuming response.comment contains the serialized comment data
+                var commentHtml = `<div class="comment bg-white shadow-md rounded p-4 mb-4">
+                                      <div class="flex items-center mb-2">
+                                        <strong class="text-blue-500 mr-2">${response.comment.user}</strong>
+                                        <span>${response.comment.text}</span>
+                                      </div>
+                                      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded cursor-pointer mb-2 reply-button">Reply</button>
+                                      <form method="post" action="{% url 'add_reply' 0 %}" class="mb-2 reply-form hidden" data-comment-id="{{ comment.id }}">
+
+                                        {% csrf_token %}
+                                        <textarea name="text" rows="2" cols="40" class="w-full py-2 px-3 border border-gray-300 rounded mb-2"></textarea><br>
+                                        <input type="submit" value="Reply" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded cursor-pointer">
+                                      </form>
+                                    </div>`;
+                $('.comment-section').append(commentHtml);
+              } else if (response.reply) {
+                // Assuming response.reply contains the serialized reply data
+                var replyHtml = `<div class="reply bg-gray-100 rounded p-2 mb-2">
+                                    <strong class="text-blue-500">${response.reply.user}</strong>: ${response.reply.text}
+                                  </div>`;
+                var commentId = form.data('comment-id');
+                $(`.reply-form[data-comment-id="${commentId}"]`).before(replyHtml);
+              }
+
+              form.find('textarea').val('');
+              form.hide();
+            } else {
+              console.log(response.errors);
+            }
+          },
+          error: function(error) {
+            console.log(error);
+          }
+        });
+
+        return false;
+      }
+
+      $('.comment-form').submit(function() {
+        return submitForm($(this));
+      });
+
+      $('.reply-form').submit(function() {
+        return submitForm($(this));
+      });
+
+      $('.reply-button').click(function() {
+        var replyForm = $(this).siblings('.reply-form');
+        replyForm.toggle();
+        return false;
+      });
+    });
+  </script>
+  
+  </div>
+{% endblock %}

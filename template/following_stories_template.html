@@ -1,0 +1,12 @@
+<h1>Following Stories</h1>
+<p>Stories from users {{ current_user.username }} is following:</p>
+
+<ul>
+    {% for story in stories %}
+    <li>
+        <h3>{{ story.user.username }}</h3>
+        <p>{{ story.created }}</p>
+        <!-- Display the story content or image here -->
+    </li>
+    {% endfor %}
+</ul>

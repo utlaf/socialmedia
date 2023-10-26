@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>Story Stats</h1>
+
+    <ul class="list-disc">
+        <li>Total views: {{ story.views_count }}</li>
+        <li>Unique views: {{ story.unique_views_count }}</li>
+    </ul>
+{% endblock %}

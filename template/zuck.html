@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+<!-- demo styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/zuck.js/2.1.0/zuck.css"
+    integrity="sha512-vtIPbhm9H5+YwcJxweGdHuNh2n1Hg5oZfoWVbwelRpG9dzSaciFDfznOik6FjbEli4IXUIvZOqkoKvqmIyqScQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- lib styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/zuck.js/2.1.0/zuck.css"
+    integrity="sha512-vtIPbhm9H5+YwcJxweGdHuNh2n1Hg5oZfoWVbwelRpG9dzSaciFDfznOik6FjbEli4IXUIvZOqkoKvqmIyqScQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- lib skins -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/zuck.js/2.1.0/skins/facesnap.css"
+    integrity="sha512-rGPvl1dX6g8yfneHQkJqhx37yxadryM/NgnNu4fUPdjaSZ68WZDEojK6X3GgwX1qUJNJtrmKUL9dy8i0Xc7dZw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zuck.js/2.1.0/zuck.js"></script>
+<div class="card shadow-gray-100">
+    <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-shadow-500 dark:bg-gray-800">
+        <div id="stories" class="storiesWrapper"></div>
+    </div>
+</div>
+
+<script>
+    // Your dynamic stories data from the 'new_stories' variable
+    var new_stories = JSON.parse('{{stories|safe}}');
+    console.log(new_stories);
+
+
+    // var currentSkin = getCurrentSkin();
+    var stories = window.Zuck(document.querySelector('#stories'), {
+        skin: 'facesnap',
+        backNative: true,
+        previousTap: true,
+        avatars: true,
+        list: false,
+        autoFullScreen: false,
+        cubeEffect: true,
+        paginationArrows: true,
+        localStorage: true,
+        stories: new_stories  // Use the dynamic stories data here
+    });
+
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zuck.js/2.1.0/zuck.js"
+    integrity="sha512-9+1pRTf4gCFPUo1e7QB+P2OafvBMIV114wQzU74ErzKdFe4saTDPH3w+87iccK9EKmwNOBGcghw7McggXoJVDA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+{% endblock %}

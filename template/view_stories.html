@@ -1,0 +1,28 @@
+<!-- view_stories.html -->
+
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="max-w-full mx-auto p-8">
+    <ul class="flex space-x-6 font-serif">
+        <li class="flex flex-col items-center space-y-1 relative">
+            <!-- Your personal story here -->
+        </li>
+        {% for story in stories %}
+        <li class="flex flex-col items-center space-y-1 ">
+            <div class="bg-gradient-to-tr from-yellow-500 to-fuchsia-600 p-1 rounded-full">
+                <a class="bg-white block rounded-full p-1 hover:-rotate-6 transform transition" href="#">
+                    {% if story.image %}
+                    <img src="{{ story.image.url }}" alt="Story Image" class="w-full h-32 object-cover mb-2">
+                    {% else %}
+                    <p>No image available</p>
+                    {% endif %}
+                </a>
+            </div>
+            <p>{{ story.user.username }}</p>
+            <p>{{ story.created }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

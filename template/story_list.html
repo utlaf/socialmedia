@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Stories</title>
+</head>
+
+<body>
+    <h1>My Stories</h1>
+    <ul>
+        {% for story in current_user_stories %}
+        <li>
+            <img src="{{ story.image.url }}" alt="{{ story.user.username }}'s Story Image">
+            <p>{{ story.user.username }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h1>Other Users' Stories</h1>
+    <ul>
+        {% for story in other_users_stories %}
+        <li>
+            <img src="{{ story.image.url }}" alt="{{ story.user.username }}'s Story Image">
+            <p>{{ story.user.username }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>

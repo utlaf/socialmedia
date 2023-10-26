@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>Story Viewers</h1>
+
+    <ul class="flex flex-wrap">
+        {% for viewer in story.viewers.all %}
+            <li class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-3">
+                <a href="{% url 'users:profile' viewer.pk %}" class="flex flex-row items-center">
+                    <img src="{{ viewer.profile_picture.url }}" alt="{{ viewer.username }}'s profile picture" class="w-10 h-10 rounded-full mr-2">
+                    <span>{{ viewer.username }}</span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

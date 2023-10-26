@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>{{ post.text }}</h1>
+<img src="{{ post.image.url }}" alt="Post Image">
+<!-- Display comments -->
+<h2>Comments</h2>
+{% for comment in post.comments.all %}
+    <div class="comment">
+        <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+    </div>
+{% empty %}
+<p>No comments yet.</p>
+{% endfor %}
+
+{% endblock %}

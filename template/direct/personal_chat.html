@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+{% load static %}
+<html :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTX-Socio Chat</title>
+  <link rel="stylesheet" href="{% static 'assets/css/tailwind.output.css' %}" />
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.4.6/tailwind.min.css'>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="{% static 'assets/js/index.js' %}" />
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+    integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+  <script src="{% static 'assets/js/init-alpine.js' %}"></script>
+</head>
+
+<body>
+
+  <style>
+    body {
+      overflow: hidden;
+    }
+  </style>
+
+
+  <div class="card shadow-lg ">
+    <div class="px-4 py-3 mb-8 bg-white  shadow-md dark:bg-gray-800">
+
+
+      <!-- Add this block inside your HTML file -->
+      <div class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen">
+        <div class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
+          <div class="relative flex items-center space-x-4">
+            <div class="relative">
+              {% if receiver.profile.is_online %}
+              <span class="absolute text-green-500 right-0 bottom-0">
+                <svg width="20" height="20">
+                  <circle cx="8" cy="8" r="8" fill="currentColor"></circle>
+                </svg>
+              </span>
+              {% endif %}
+              <img src="{{ receiver.profile.profile_image.url }}" alt="" class="w-10 sm:w-16 h-10 sm:h-16 rounded-full">
+            </div>
+            <div class="flex flex-col leading-tight">
+              <div class="text-2xl mt-1 flex items-center">
+                <span class="text-gray-700 mr-3">{{ receiver.username |capfirst }}</span>
+                {% if receiver.profile.is_online %}
+                <span class="text-green-500">{{ profile.last_online }}</span>
+                {% else %}
+                <span id="online-status">Loading...</span>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Add this block inside your HTML file -->
+          <!-- Add this block inside your HTML file -->
+          <!-- Add this block inside your HTML file -->
+          <script>
+            function updateProfileStatus() {
+              const userId = '{{ receiver.id }}';
+
+              // Check if the user is authenticated before making the request
+              if (userId) {
+                fetch(`/profile/${userId}/update/`)
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                  })
+                  .then(data => {
+                    console.log('Received data:', data);
+
+                    if (data.is_online) {
+                      document.getElementById('online-status').innerHTML = 'Online';
+                      document.getElementById('online-status').style.color = 'green';
+                    } else {
+                      document.getElementById('online-status').innerHTML = 'Offline';
+                      document.getElementById('online-status').style.color = 'black';
+                    }
+                  })
+                  .catch(error => console.error('Error fetching profile status:', error));
+              } else {
+                // Handle the case where the user is not authenticated (logged out)
+                document.getElementById('online-status').innerHTML = 'Offline';
+                document.getElementById('online-status').style.color = 'black';
+              }
+            }
+
+            // Update every 10 seconds
+            setInterval(updateProfileStatus, 10000);  // 10 seconds
+
+            // Update immediately on page load
+            updateProfileStatus();
+          </script>
+
+
+
+          <div class="flex items-center space-x-2">
+            <button type="button"
+              class="inline-flex items-center justify-center rounded-lg border h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+              <a href="{% url 'direct' %}"> <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                  </path>
+                </svg>
+              </a>
+            </button>
+
+
+
+          </div>
+        </div>
+        <div id="chat-box"
+          class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
+          <!-- Display messages here using JavaScript or Django template tags -->
+          {% for message in messages %}
+          <!-- Assuming you have a Message instance called 'message' -->
+
+
+          <div class="mb-2">
+            {% if message.sender.username == request.user.username %}
+            <!-- Sender's message box on the right -->
+            <div class="flex items-end justify-end">
+              <div class="order-1 mx-2 flex max-w-xs flex-col items-end space-y-2 text-xs">
+                <div><span class="inline-block rounded-lg rounded-br-none bg-blue-600 px-4 py-2 text-white">{{
+                    message.content }}</span></div>
+              </div>
+
+              <img src="{{ user.profile.profile_image.url }}" alt="" srcset="" class="order-2 h-6 w-6 rounded-full">
+
+            </div>
+
+            {% else %}
+
+            <!-- Receiver's message box on the left -->
+            <div class="flex items-end">
+              <div class="order-2 mx-2 flex max-w-xs flex-col items-start space-y-2 text-xs">
+                <div><span class="inline-block rounded-lg rounded-bl-none bg-gray-300 px-4 py-2 text-gray-600">{{
+                    message.content }}</span></div>
+              </div>
+              <!-- <img src="{{ message.profile_image.url }}" alt="" srcset=""> -->
+              <img src="{{receiver.profile.profile_image.url }}" alt="" srcset="" class="order-2 h-6 w-6 rounded-full">
+              <!-- <img src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144" alt="My profile" class="order-1 h-6 w-6 rounded-full" /> -->
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <form id="personal-message-form" method="post"
+          action="{% url 'send_personal_message' receiver_id=receiver.id %}">
+          {% csrf_token %}
+
+          <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+            <div class="relative flex">
+              <span class="absolute inset-y-0 flex items-center">
+                <button type="button"
+                  class="inline-flex items-center justify-center rounded-full h-12 w-12 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    class="h-6 w-6 text-gray-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+                    </path>
+                  </svg>
+                </button>
+              </span>
+              <input type="text" name="content" required placeholder="Write your message!"
+                class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3">
+              <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
+                <button type="button" @click="openModal"
+                  class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    class="h-6 w-6 text-gray-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                    </path>
+                  </svg>
+                </button>
+                <div x-show="isModalOpen" x-transition:enter="transition ease-out duration-150"
+                  x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                  x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                  x-transition:leave-end="opacity-0"
+                  class="fixed inset-0 z-30 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center">
+                  <!-- Modal -->
+                  <div x-show="isModalOpen" x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 transform translate-y-1/2" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0  transform translate-y-1/2" @click.away="closeModal"
+                    @keydown.escape="closeModal"
+                    class="w-full px-6 py-4 overflow-hidden bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl"
+                    role="dialog" id="modal">
+                    <!-- Remove header if you don't want a close icon. Use modal body to place modal tile. -->
+                    <header class="flex justify-end">
+                      <button
+                        class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover: hover:text-gray-700"
+                        aria-label="close" @click="closeModal">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" role="img" aria-hidden="true">
+                          <path
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" fill-rule="evenodd"></path>
+                        </svg>
+                      </button>
+                    </header>
+                    <!-- Modal body -->
+                    <div class="mt-4 mb-6">
+                      <!-- Modal title -->
+                      <p class="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300">
+                        Modal header
+                      </p>
+                      <!-- Modal description -->
+                      <input type="file" id="fileInput" @change="handleFileChange" class="mt-4">
+
+
+                    </div>
+                    <footer
+                      class="flex flex-col items-center justify-end px-6 py-3 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row bg-gray-50 dark:bg-gray-800">
+                      <button @click="closeModal"
+                        class="w-full px-5 py-3 text-sm font-medium leading-5 text-white text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-4 sm:py-2 sm:w-auto active:bg-transparent hover:border-gray-500 focus:border-gray-500 active:text-gray-500 focus:outline-none focus:shadow-outline-gray">
+                        Cancel
+                      </button>
+                      <button
+                        class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg sm:w-auto sm:px-4 sm:py-2 active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+                        Accept
+                      </button>
+                    </footer>
+                  </div>
+                </div>
+                <button type="button"
+                  class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    class="h-6 w-6 text-gray-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </button>
+                <button type="button"
+                  class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    class="h-6 w-6 text-gray-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </button>
+                <button id="send-button" type="button"
+                  class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
+                  <span class="font-bold">Send</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    class="h-6 w-6 ml-2 transform rotate-90">
+                    <path
+                      d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+      </div>
+      </form>
+    </div>
+  </div>
+  </div>
+  </div>
+  </div>
+
+  <script>
+    const currentUser = "{{ request.user.username }}";
+    console.log("Current User:", currentUser);
+  </script>
+  <script>
+    function updatePersonalChat(messages) {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.innerHTML = ''; // Clear previous messages
+
+      messages.forEach(message => {
+        const div = document.createElement('div');
+        const isSender = message.sender === currentUser;
+
+        div.innerHTML = `
+            <div class="flex ${isSender ? 'items-end justify-end' : 'items-end'}">
+                <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 ${isSender ? 'order-2 items-start' : 'order-1 items-end'}">
+                    <div><span class="px-4 py-2 rounded-lg inline-block ${isSender ? 'rounded-bl-none bg-gray-300 text-gray-600' : 'rounded-br-none bg-blue-600 text-white'}">${message.content}</span></div>
+                </div>
+                <img src="${message.sender === currentUser ? '{{ user.profile.profile_image.url }}' : '{{receiver.profile.profile_image.url }}'}" alt="My profile" class="w-6 h-6 rounded-full ${isSender ? 'order-1' : 'order-2'}">
+            </div>
+        `;
+
+        chatBox.appendChild(div);
+      });
+      scrollToBottom();
+    }
+
+
+    function sendMessage() {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.innerHTML = '';
+      const form = document.getElementById('personal-message-form');
+      const formData = new FormData(form);
+
+      console.log('Sending message:', formData);
+
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response from server:', data);
+
+          if (data.success) {
+            updatePersonalChat(data.messages);
+            form.reset(); // Clear the textarea
+            scrollToBottom();
+          } else {
+            console.error('Failed to send message. Server response:', data);
+            // You can handle errors here, e.g., by updating UI or logging to console
+          }
+        })
+        .catch(error => {
+          console.error('Error sending message:', error);
+          // You can handle errors here, e.g., by updating UI or logging to console
+        });
+    }
+
+    // Scroll the chat box to the bottom
+    function scrollToBottom() {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Event listener for the send button
+    document.getElementById('send-button').addEventListener('click', sendMessage);
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // Event listener for the text input
+    document.querySelector('input[name="content"]').addEventListener('keydown', handleKeyPress);
+  </script>
+
+  <script>
+    var getPersonalMessagesUrl = "{% url 'get_personal_messages' receiver_id=receiver.id %}";
+
+    // Periodically update the chat
+    setInterval(() => {
+      fetch(getPersonalMessagesUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updatePersonalChat(data.messages);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching messages:', error);
+          // You can handle errors here, e.g., by updating UI or logging to console
+        });
+    }, 1000);
+
+
+  </script>
+  <style>
+    .scrollbar-w-2::-webkit-scrollbar {
+      width: 0.25rem;
+      height: 0.25rem;
+    }
+
+    .scrollbar-track-blue-lighter::-webkit-scrollbar-track {
+      --bg-opacity: 1;
+      background-color: #f7fafc;
+      background-color: rgba(247, 250, 252, var(--bg-opacity));
+    }
+
+    .scrollbar-thumb-blue::-webkit-scrollbar-thumb {
+      --bg-opacity: 1;
+      background-color: #edf2f7;
+      background-color: rgba(237, 242, 247, var(--bg-opacity));
+    }
+
+    .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+      border-radius: 0.25rem;
+    }
+  </style>
+
+  <script>
+    const el = document.getElementById('messages')
+    el.scrollTop = el.scrollHeight
+  </script>
+  <!-- fix scroll button  -->
+
+</body>
+
+</html>
